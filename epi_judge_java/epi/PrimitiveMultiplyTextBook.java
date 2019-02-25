@@ -3,7 +3,7 @@ package epi;
 import epi.test_framework.EpiTest;
 import epi.test_framework.GenericTest;
 
-public class PrimitiveMultiply {
+public class PrimitiveMultiplyTextBook {
     @EpiTest(testDataFile = "primitive_multiply.tsv")
     public static long multiply(long x, long y) {
         if (y == 1) { //edge case
@@ -27,31 +27,21 @@ public class PrimitiveMultiply {
 
     public static long sum(long a, long b) {
         long result = 0;
-        long mask = 1;
         long carry = 0;
-        while (mask != (1l << 63)) {
-            if (((a & mask) ^ (b & mask)) == mask) { //0 and 1
-                if (carry == 0) {
-                    result |= mask;
-                } else {
-                    carry = 1;
-                }
-            } else {
-                if ((a & mask) > 0) { // 1 and 1
-                    if (carry == 0) {
-                        carry = 1;
-                    } else {
-                        result |= mask;
-                        carry = 1;
-                    }
-                } else {  // 0 and 0
-                    if (carry == 1) {
-                        result |= mask;
-                        carry = 0; //carry applied
-                    }
-                }
+        long sumbit = 1;
+        while (a != 0 || b != 0) { //#silly - do not use && here
+            long ab = a & 1, bb = b & 1;
+            long s = ab ^ bb ^ carry;
+            carry = (ab & bb) | ((ab ^ bb) & carry);
+            if (s == 1) {
+                result |= sumbit;
             }
-            mask <<= 1;
+            sumbit <<= 1;
+            a >>>= 1;
+            b >>>= 1;
+        }
+        if (carry == 1) {
+            result |= sumbit;
         }
         return result;
     }
@@ -60,9 +50,11 @@ public class PrimitiveMultiply {
 //        System.out
 //        .println(PrimitiveMultiply.multiply(3,2));
 //        System.out.println(PrimitiveMultiply.multiply(3,5));
+        System.out.println(PrimitiveMultiplyTextBook.sum(3, 4));
+        System.out.println(PrimitiveMultiplyTextBook.sum(1, 1));
         System.exit(
                 GenericTest
-                        .runFromAnnotations(args, "PrimitiveMultiply.java",
+                        .runFromAnnotations(args, "PrimitiveMultiplyTextBoo.java",
                                 new Object() {
                                 }.getClass().getEnclosingClass())
                         .ordinal());
